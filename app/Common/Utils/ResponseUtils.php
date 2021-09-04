@@ -1,21 +1,23 @@
 <?php
+declare(strict_types=1);
 
-
-namespace App\Service;
+namespace App\Common\Utils;
 
 
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use App\Constants\BusinessCode;
+
 
 /**
  * API请求返回服务类
  *
- * Class ResponseService
+ * Class ResponseUtils
  *
- * @package App\Service
+ * @package App\Common\Utils
  */
-class ResponseService
+class ResponseUtils
 {
     /**
      * @var int
@@ -33,14 +35,14 @@ class ResponseService
 
     /**
      * 业务返回码
-     * 举例：10000  请求成功
-     *      10001  用户认证失败
-     *      10002  非法的授权信息
-     *      99999  请求出错
+     * 举例：100000  请求成功
+     *      100001  用户认证失败
+     *      100002  非法的授权信息
+     *      999999  请求出错
      *
      * @var int
      */
-    private $business_code = 10000;
+    private $business_code = 100000;
 
     /**
      * 业务返回消息
@@ -102,16 +104,18 @@ class ResponseService
     /**
      * 失败返回
      *
-     * @param string $error_msg 错误信息
      * @param mixed $data 返回数据
+     * @param int $code 返回数据
      * @param int $business_code 错误业务码
      *
      * @return ResponseInterface|PsrResponseInterface
      */
-    public function fail(string $error_msg = 'fail', $data = null, int $business_code = 99999)
+    public function fail(int $code,int $business_code = 999999,$data = null)
     {
         $this->business_code = $business_code;
-        $this->business_msg = $error_msg;
+        $this->http_code     = $code;
+
+        $this->business_msg  = BusinessCode::getMessage($business_code) ?? 'fail';
 
         return $this->response($data);
     }

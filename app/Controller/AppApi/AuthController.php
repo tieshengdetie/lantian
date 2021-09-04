@@ -19,6 +19,7 @@ class AuthController extends AbstractController{
 
         $username = $this->request->input('username');
         $password = $this->request->input('password');
+
         if ($username && $password) {
             $userData = [
                 'uid' => 1, // 如果使用单点登录，必须存在配置文件中的sso_key的值，一般设置为用户的id
@@ -29,9 +30,9 @@ class AuthController extends AbstractController{
                 'token' => (string)$token,
                 'exp' => $this->jwt->getTTL(),
             ];
-            return $this->response->success($data);
+            return $this->success($data);
         }
-        return $this->response->fail('登录失败');
+        return $this->fail('登录失败');
 
     }
 
@@ -42,14 +43,14 @@ class AuthController extends AbstractController{
             'token' => (string)$token,
             'exp' => $this->jwt->getTTL(),
         ];
-        return $this->response->success($data);
+        return $this->success($data);
 
     }
 
     public function logout()
     {
         $this->jwt->logout();
-        return $this->response->success();
+        return $this->success();
     }
     /**
      * 用户信息
@@ -69,7 +70,7 @@ class AuthController extends AbstractController{
             'create_time as createTime'
         ];
         $data = $this->sysUserService->findForSelect($sys_user['user_id'], $select);
-        return $this->response->success([
+        return $this->success([
             'user' => $data
         ]);
     }

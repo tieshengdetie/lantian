@@ -28,4 +28,18 @@ class ErrorCode extends AbstractConstants
      * @Message("Authorization Error！")
      */
     const AUTHORIZATION_ERROR = 401;
+    /**
+     * @Message("BadRequest！")
+     */
+    const BAD_REQUEST = 400;
+
+    /**
+     * @Message(" Not Found！")
+     */
+    const NOT_FOUND = 404;
+
+    /**
+     * @Message("emporarily Moved！")
+     */
+    const TEMPORARILY_MOVED  = 302;
 }
