@@ -11,11 +11,11 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
+use App\Common\Traits\ApiResponse;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
-use App\Common\Utils\ResponseUtils;
 
 abstract class AbstractController
 {
@@ -36,17 +36,7 @@ abstract class AbstractController
      * @var ResponseInterface
      */
     protected $response;
-    /**
-     * @param $name
-     * @param $arguments
-     *
-     * @return mixed
-     */
-    public function __call($name, $arguments)
-    {
-        if (method_exists(ResponseUtils::class, $name)) {
-            return make(ResponseUtils::class)->{$name}(...$arguments);
-        }
-    }
+
+    use ApiResponse;
 
 }

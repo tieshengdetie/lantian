@@ -19,6 +19,10 @@ class BusinessCode extends  AbstractConstants{
      */
     const SUCCESS_REQUEST = 100000;
     /**
+     * @Message("请求成功！")
+     */
+    const LOGIN_ERROR = 100001;
+    /**
      * @Message("token认证失败！")
      */
     const TOKEN_VALID = 400001;
@@ -31,7 +35,11 @@ class BusinessCode extends  AbstractConstants{
      */
     const TOKEN_MISSING = 400003;
     /**
-     * @Message("请求出错！")
+     * @Message("登录失败！")
      */
-    const FAIL_REQUEST = 999999;
+    const LOGIN_FAIL = 400004;
+    /**
+     * @Message("系统出错！")
+     */
+    const SYSTEM_ERROR = 999999;
 }

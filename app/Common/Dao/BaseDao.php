@@ -9,7 +9,7 @@
 namespace App\Common\Dao;
 
 
-use App\Constants\ErrorCode;
+use App\Constants\HttpCode;
 
 abstract class BaseDao
 {
@@ -30,7 +30,7 @@ abstract class BaseDao
                 return make($className);
             }
         }
-        throw new \RuntimeException("模型{$key}不存在，文件不存在！", ErrorCode::SERVER_ERROR);
+        throw new \RuntimeException("模型{$key}不存在，文件不存在！", HttpCode::SERVER_ERROR);
     }
 
     /**

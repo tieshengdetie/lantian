@@ -1,56 +1,51 @@
 <?php
 
-declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://doc.hyperf.io
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
-
+declare (strict_types=1);
 namespace App\Model;
 
+use Hyperf\ModelCache\Cacheable;
+use HyperfExt\Auth\Authenticatable;
+use HyperfExt\Auth\Contracts\AuthenticatableInterface;
+use HyperfExt\Jwt\Contracts\JwtSubjectInterface;
+
 /**
- * @property int $id
- * @property string $mobile
- * @property string $realname
  */
-class User extends Model
+class User extends Model implements AuthenticatableInterface ,JwtSubjectInterface
 {
+    use Authenticatable, Cacheable;
     /**
      * The table associated with the model.
      *
      * @var string
      */
     protected $table = 'users';
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'account','phone', 'email', 'password','recommend_id','staff_id','agent_id','unit_id','center_id','deep',
-    ];
-
+    protected $fillable = [];
     /**
-     * The attributes that should be hidden for arrays.
+     * The attributes that should be cast to native types.
      *
      * @var array
      */
-    protected $hidden = [
-        'password', 'payment_password','recommend_id','staff_id','agent_id','unit_id','center_id','relationship','deep'
-    ];
+    protected $casts = [];
 
-    public function config() {
-        return $this->hasOne(UserConfig::class, 'uid', 'id');
-    }
-    
-    public function assets() {
-        return $this->hasOne(UserAssets::class, 'uid', 'id');
+
+    public function getJwtIdentifier()
+    {
+        return $this->getKey();
     }
 
-
+    /**
+     * JWT自定义载荷
+     * @return array
+     */
+    public function getJwtCustomClaims(): array
+    {
+        return [
+            'guard' => 'api'    // 添加一个自定义载荷保存守护名称，方便后续判断
+        ];
+    }
 }

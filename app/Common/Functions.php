@@ -12,6 +12,11 @@ use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Logger\LoggerFactory;
 use Hyperf\ExceptionHandler\Formatter\FormatterInterface;
 use Hyperf\Utils\ApplicationContext;
+use HyperfExt\Auth\Contracts\AuthManagerInterface;
+use HyperfExt\Auth\Contracts\GuardInterface;
+use HyperfExt\Auth\Contracts\StatefulGuardInterface;
+use HyperfExt\Auth\Contracts\StatelessGuardInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * 获取Container
@@ -20,7 +25,7 @@ if (!function_exists('container')) {
     /**
      * Finds an entry of the container by its identifier and returns it.
      * @param null|mixed $id
-     * @return mixed|\Psr\Container\ContainerInterface
+     * @return mixed|ContainerInterface
      */
     function container($id = null)
     {
@@ -32,7 +37,20 @@ if (!function_exists('container')) {
     }
 }
 
+if (!function_exists('auth')) {
+    /**
+     * Auth认证辅助方法
+     * @param string|null $guard
+     * @return GuardInterface|StatefulGuardInterface|StatelessGuardInterface
+     */
+    function auth(string $guard = null)
+    {
+        if (is_null($guard)) $guard = config('auth.default.guard');
+        return make(AuthManagerInterface::class)->guard($guard);
+    }
+}
 
+#app/Functions.php
 /**
  * 控制台日志
  */
@@ -88,6 +106,10 @@ if (!function_exists('format_throwable')) {
 if (!function_exists('queue_push')) {
     /**
      * Push a job to async queue.
+     * @param JobInterface $job
+     * @param int $delay
+     * @param string $key
+     * @return bool
      */
     function queue_push(JobInterface $job, int $delay = 0, string $key = 'default'): bool
     {
@@ -99,7 +121,7 @@ if (!function_exists('queue_push')) {
 if (!function_exists('encryptWithSalt')) {
     /**
      * 加密
-     * @param $password
+     * @param $str
      * @param $salt
      * @return string
      */

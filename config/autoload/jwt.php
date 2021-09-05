@@ -1,42 +1,246 @@
 <?php
 
 declare(strict_types=1);
-
+/**
+ * This file is part of hyperf-ext/jwt
+ *
+ * @link     https://github.com/hyperf-ext/jwt
+ * @contact  eric@zhu.email
+ * @license  https://github.com/hyperf-ext/jwt/blob/master/LICENSE
+ */
 return [
-    # 登录方式，sso为单点登录，mpop为多点登录
-    'login_type' => env('JWT_LOGIN_TYPE', 'mpop'),
+    /*
+    |--------------------------------------------------------------------------
+    | JWT Authentication Secret
+    |--------------------------------------------------------------------------
+    |
+    | Don't forget to set this in your .env file, as it will be used to sign
+    | your tokens. A helper command is provided for this:
+    | `php bin/hyperf.php gen:jwt-secret`
+    |
+    | Note: This will be used for Symmetric algorithms only (HMAC),
+    | since RSA and ECDSA use a private/public key pair (See below).
+    |
+    | Note: This value must be encoded by base64.
+    |
+    */
 
-    # 单点登录自定义数据中必须存在uid的键值，这个key你可以自行定义，只要自定义数据中存在该键即可
-    'sso_key' => 'uid',
-
-    # 非对称加密使用字符串,请使用自己加密的字符串
-    'secret' => env('JWT_SECRET', 'lantianfangzhou'),
+    'secret' => env('JWT_SECRET'),
 
     /*
-     * JWT 权限keys
-     * 对称算法: HS256, HS384 & HS512 使用 `JWT_SECRET`.
-     * 非对称算法: RS256, RS384 & RS512 / ES256, ES384 & ES512 使用下面的公钥私钥.
-     */
+    |--------------------------------------------------------------------------
+    | JWT Authentication Keys
+    |--------------------------------------------------------------------------
+    |
+    | The algorithm you are using, will determine whether your tokens are
+    | signed with a random string (defined in `JWT_SECRET`) or using the
+    | following public and private keys. A helper command is provided for this:
+    | `php bin/hyperf.php gen:jwt-keypair`
+    |
+    | Symmetric Algorithms:
+    | HS256, HS384 & HS512 will use `JWT_SECRET`.
+    |
+    | Asymmetric Algorithms:
+    | RS256, RS384 & RS512 / ES256, ES384 & ES512 will use the keys below.
+    |
+    */
+
     'keys' => [
-        # 公钥，例如：'file://path/to/public/key'
+        /*
+        |--------------------------------------------------------------------------
+        | Public Key
+        |--------------------------------------------------------------------------
+        |
+        | Your public key content.
+        |
+        */
+
         'public' => env('JWT_PUBLIC_KEY'),
 
-        # 私钥，例如：'file://path/to/private/key'
+        /*
+        |--------------------------------------------------------------------------
+        | Private Key
+        |--------------------------------------------------------------------------
+        |
+        | Your private key content.
+        |
+        */
+
         'private' => env('JWT_PRIVATE_KEY'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Passphrase
+        |--------------------------------------------------------------------------
+        |
+        | The passphrase for your private key. Can be null if none set.
+        |
+        | Note: This value must be encoded by base64.
+        |
+        */
+
+        'passphrase' => env('JWT_PASSPHRASE'),
     ],
 
-    # token过期时间，单位为秒
-    'ttl' => env('JWT_TTL', 7200),
+    /*
+    |--------------------------------------------------------------------------
+    | JWT time to live
+    |--------------------------------------------------------------------------
+    |
+    | Specify the length of time (in seconds) that the token will be valid for.
+    | Defaults to 1 hour.
+    |
+    | You can also set this to null, to yield a never expiring token.
+    | Some people may want this behaviour for e.g. a mobile app.
+    | This is not particularly recommended, so make sure you have appropriate
+    | systems in place to revoke the token if necessary.
+    | Notice: If you set this to null you should remove 'exp' element from 'required_claims' list.
+    |
+    */
 
-    # jwt的hearder加密算法
-    'alg' => env('JWT_ALG', 'HS256'),
+    'ttl' => (int) env('JWT_TTL', 3600),
 
-    # 是否开启黑名单，单点登录和多点登录的注销、刷新使原token失效，必须要开启黑名单，目前黑名单缓存只支持hyperf缓存驱动
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh time to live
+    |--------------------------------------------------------------------------
+    |
+    | Specify the length of time (in seconds) that the token can be refreshed
+    | within. I.E. The user can refresh their token within a 2 week window of
+    | the original token being created until they must re-authenticate.
+    | Defaults to 2 weeks.
+    |
+    | You can also set this to null, to yield an infinite refresh time.
+    | Some may want this instead of never expiring tokens for e.g. a mobile app.
+    | This is not particularly recommended, so make sure you have appropriate
+    | systems in place to revoke the token if necessary.
+    |
+    */
+
+    'refresh_ttl' => (int) env('JWT_REFRESH_TTL', 3600 * 24 * 14),
+
+    /*
+    |--------------------------------------------------------------------------
+    | JWT hashing algorithm
+    |--------------------------------------------------------------------------
+    |
+    | Specify the hashing algorithm that will be used to sign the token.
+    |
+    | possible values: HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512
+    |
+    */
+
+    'algo' => env('JWT_ALGO', 'HS512'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Required Claims
+    |--------------------------------------------------------------------------
+    |
+    | Specify the required claims that must exist in any token.
+    | A TokenInvalidException will be thrown if any of these claims are not
+    | present in the payload.
+    |
+    */
+
+    'required_claims' => [
+        'iss',
+        'iat',
+        'exp',
+        'nbf',
+        'sub',
+        'jti',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Persistent Claims
+    |--------------------------------------------------------------------------
+    |
+    | Specify the claim keys to be persisted when refreshing a token.
+    | `sub` and `iat` will automatically be persisted, in
+    | addition to the these claims.
+    |
+    | Note: If a claim does not exist then it will be ignored.
+    |
+    */
+
+    'persistent_claims' => [
+        // 'foo',
+        // 'bar',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lock Subject
+    |--------------------------------------------------------------------------
+    |
+    | This will determine whether a `prv` claim is automatically added to
+    | the token. The purpose of this is to ensure that if you have multiple
+    | authentication models e.g. `App\User` & `App\OtherPerson`, then we
+    | should prevent one authentication request from impersonating another,
+    | if 2 tokens happen to have the same id across the 2 different models.
+    |
+    | Under specific circumstances, you may want to disable this behaviour
+    | e.g. if you only have one authentication model, then you would save
+    | a little on token size.
+    |
+    */
+
+    'lock_subject' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Leeway
+    |--------------------------------------------------------------------------
+    |
+    | This property gives the jwt timestamp claims some "leeway".
+    | Meaning that if you have any unavoidable slight clock skew on
+    | any of your servers then this will afford you some level of cushioning.
+    |
+    | This applies to the claims `iat`, `nbf` and `exp`.
+    |
+    | Specify in seconds - only if you know you need it.
+    |
+    */
+
+    'leeway' => (int) env('JWT_LEEWAY', 0),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blacklist Enabled
+    |--------------------------------------------------------------------------
+    |
+    | In order to invalidate tokens, you must have the blacklist enabled.
+    | If you do not want or need this functionality, then set this to false.
+    |
+    */
+
     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
-    # 黑名单的宽限时间 单位为：秒，注意：如果使用单点登录，该宽限时间无效
-    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+    /*
+    | -------------------------------------------------------------------------
+    | Blacklist Grace Period
+    | -------------------------------------------------------------------------
+    |
+    | When multiple concurrent requests are made with the same JWT,
+    | it is possible that some of them fail, due to token regeneration
+    | on every request.
+    |
+    | Set grace period in seconds to prevent parallel request failure.
+    |
+    */
 
-    # 黑名单缓存token时间，注意：该时间一定要设置比token过期时间要大，默认为1天
-    'blacklist_cache_ttl' => env('JWT_BLACKLIST_CACHE_TTL', 86400),
+    'blacklist_grace_period' => (int) env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blacklist Storage
+    |--------------------------------------------------------------------------
+    |
+    | Specify the handler that is used to store tokens in the blacklist.
+    |
+    */
+
+    'blacklist_storage' => HyperfExt\Jwt\Storage\HyperfCache::class,
 ];

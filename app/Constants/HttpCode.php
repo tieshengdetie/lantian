@@ -18,7 +18,7 @@ use Hyperf\Constants\Annotation\Constants;
 /**
  * @Constants
  */
-class ErrorCode extends AbstractConstants
+class HttpCode extends AbstractConstants
 {
     /**
      * @Message("Server Error！")

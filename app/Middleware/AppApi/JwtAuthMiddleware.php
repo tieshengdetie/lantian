@@ -2,78 +2,79 @@
 
 declare(strict_types=1);
 
-namespace App\Middleware\AppApi;
+namespace App\Middleware;
 
-use App\Model\User;
-use Hyperf\Utils\Context;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use App\Common\Traits\ApiResponse;
+use App\Constants\BusinessCode;
+use App\Constants\HttpCode;
+use Exception;
+use Hyperf\Di\Annotation\Inject;
+use HyperfExt\Jwt\Contracts\ManagerInterface;
+use HyperfExt\Jwt\Exceptions\TokenExpiredException;
+use HyperfExt\Jwt\JwtFactory;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Phper666\JwtAuth\Jwt;
-use Phper666\JwtAuth\Exception\TokenValidException;
-use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
-use App\Common\Utils\ResponseUtils;
-use App\Constants\ErrorCode;
-use App\Constants\BusinessCode;
 
 class JwtAuthMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var HttpResponse
-     */
-    protected $response;
+    use ApiResponse;
 
-    protected $prefix = 'Bearer';
-    protected $jwt;
     /**
-     * @var ResponseUtils
+     * @var ContainerInterface
      */
-    protected $return;
+    protected $container;
 
-    public function __construct(HttpResponse $response, Jwt $jwt, ResponseUtils $return)
+    /**
+     * @Inject
+     * @var ManagerInterface
+     */
+    private $manager;
+
+    /**
+     * @Inject
+     * @var JwtFactory
+     */
+    private $jwtFactory;
+
+    public function __construct(ContainerInterface $container)
     {
-        $this->response = $response;
-        $this->jwt      = $jwt;
-        $this->return   = $return;
+        $this->container = $container;
     }
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): PsrResponseInterface
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $isValidToken = false;
-        $token = $request->getHeader('Authorization')[0] ?? '';
-        if (strlen($token) > 0) {
-            $token = ucfirst($token);
-            $arr   = explode($this->prefix . ' ', $token);
-            $token = $arr[1] ?? '';
+        $jwt = $this->jwtFactory->make();
 
-            try {
-                if (strlen($token) > 0 && $res = $this->jwt->checkToken()) {
-                    $isValidToken = true;
-                }
-            } catch (\Exception $e) {
-
-                return $this->return->fail(ErrorCode::AUTHORIZATION_ERROR,BusinessCode::TOKEN_VALID);
+        try {
+            $jwt->checkOrFail();
+        } catch (Exception $exception) {
+            if (! $exception instanceof TokenExpiredException) {
+                return $this->setHttpCode(HttpCode::BAD_REQUEST)->fail(BusinessCode::TOKEN_VALID);
             }
+            try {
+                $token = $jwt->getToken();
 
-        }else{
-            return $this->return->fail(ErrorCode::BAD_REQUEST,BusinessCode::TOKEN_MISSING);
+                // 刷新token
+                $new_token = $jwt->getManager()->refresh($token);
+
+                // 解析token载荷信息
+                $payload = $jwt->getManager()->decode($token, false, true);
+
+                // 旧token加入黑名单
+                $jwt->getManager()->getBlacklist()->add($payload);
+
+                // 一次性登录，保证此次请求畅通
+                auth($payload->get('guard') ?? config('auth.default.guard'))->onceUsingId($payload->get('sub'));
+
+                return $handler->handle($request)->withHeader('authorization', 'bearer ' . $new_token);
+            } catch (Exception $exception) {
+                return $this->setHttpCode(HttpCode::BAD_REQUEST)->fail(BusinessCode::TOKEN_VALID);
+            }
         }
 
-        if ($isValidToken) {
-
-            $jwtData = $this->jwt->getParserData();
-
-//            $user = User::find($jwtData['uid']);
-            $user =[
-                'name'=>'zhaojinsheng'
-            ];
-            $request = Context::get(ServerRequestInterface::class);
-            $request = $request->withAttribute('user', $user);
-            Context::set(ServerRequestInterface::class, $request);
-
-            return $handler->handle($request);
-        }
-
-        return $this->return->fail(ErrorCode::AUTHORIZATION_ERROR,BusinessCode::TOKEN_VALID);
+        return $handler->handle($request);
     }
 }
