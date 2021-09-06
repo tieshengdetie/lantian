@@ -39,6 +39,10 @@ class BusinessCode extends  AbstractConstants{
      */
     const LOGIN_FAIL = 400004;
     /**
+     * @Message("密码错误！")
+     */
+    const PASSWORD_ERROR = 400005;
+    /**
      * @Message("系统出错！")
      */
     const SYSTEM_ERROR = 999999;

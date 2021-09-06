@@ -13,6 +13,7 @@ use Hyperf\HttpServer\Router\Router;
 
 Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
 Router::post('/user/login', 'App\Controller\AppApi\AuthController@login');
+Router::post('/user/add', 'App\Controller\AppApi\UserController@add');
 
 Router::addGroup('/echarts/', function () {
     Router::post('getEchartsData', 'App\Controller\AppApi\EchartsDataController@getEchartsData');

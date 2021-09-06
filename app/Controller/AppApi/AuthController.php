@@ -6,6 +6,8 @@ namespace App\Controller\AppApi;
 
 use App\Constants\HttpCode;
 use App\Constants\BusinessCode;
+use App\Controller\AbstractController;
+use App\Model\User;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use HyperfExt\Jwt\Contracts\JwtFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -25,10 +27,17 @@ class AuthController extends AbstractController
      */
     public function login(RequestInterface $request): ResponseInterface
     {
-        $credentials = $request->inputs(['email', 'password']);
-        if (!$token = auth('api')->attempt($credentials)) {
-            return $this->setHttpCode(HttpCode::BAD_REQUEST)->fail('Unauthorized');
+        $credentials = $request->inputs(['username', 'password']);
+        //查询数据库
+        $user = User::query()->where('username',$credentials['username'])->first();
+        //验证密码
+        if(!password_verify($credentials['password'],$user->password)){
+            return $this->error(BusinessCode::PASSWORD_ERROR);
         }
+        $token = auth('api')->login($user);
+//        if (!$token = auth('api')->attempt($credentials)) {
+//            return $this->error(BusinessCode::LOGIN_FAIL);
+//        }
         return $this->respondWithToken($token);
     }
 

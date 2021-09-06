@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Middleware;
+namespace App\Middleware\AppApi;
 
 use App\Common\Traits\ApiResponse;
 use App\Constants\BusinessCode;

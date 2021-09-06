@@ -24,7 +24,7 @@ class User extends Model implements AuthenticatableInterface ,JwtSubjectInterfac
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = ['username','email','password','phone','avatar'];
     /**
      * The attributes that should be cast to native types.
      *

@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace App\Common\Traits;
 
+use App\Constants\BusinessCode;
+use App\Constants\HttpCode;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\Codec\Json;
 use Hyperf\Utils\Context;
@@ -28,9 +30,14 @@ trait ApiResponse
      * @param mixed $data
      * @return ResponseInterface
      */
-    public function success($data): ResponseInterface
+    public function success($data=[]): ResponseInterface
     {
-        return $this->respond($data);
+        return $this->respond([
+            'code' => BusinessCode::SUCCESS_REQUEST,
+            'msg' => BusinessCode::getMessage(BusinessCode::SUCCESS_REQUEST),
+            'data' => $data,
+            'time' => date("Y-m-d H:i:s",time())
+        ]);
     }
 
     /**
@@ -47,8 +54,9 @@ trait ApiResponse
         }
         return $this->respond([
             'code' => $err_code ?? $this->errorCode,
-            'msg' => $err_msg ?? $this->errorMsg,
-            'data' => $data
+            'msg' => $err_msg ?? (BusinessCode::getMessage($err_code) ?? ''),
+            'data' => $data,
+            'time' => date("Y-m-d H:i:s",time())
         ]);
     }
 
@@ -122,6 +130,8 @@ trait ApiResponse
             $response = $response->withHeader($key, $value);
         }
         $httpCode = Context::get('httpCode','200');
+        $response = $response->withStatus($httpCode);
+
         return $response;
     }
 }

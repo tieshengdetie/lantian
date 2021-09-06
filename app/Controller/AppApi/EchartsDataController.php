@@ -11,7 +11,7 @@ class EchartsDataController extends AbstractController{
 
     public function getEchartsData(){
 
-
-        return $this->success();
+        $user = auth()->user();
+        return $this->success($user);
     }
 }
