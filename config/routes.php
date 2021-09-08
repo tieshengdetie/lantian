@@ -24,3 +24,8 @@ Router::addGroup('/echarts/', function () {
 Router::get('/favicon.ico', function () {
     return '';
 });
+
+//websocket
+Router::addServer('ws', function () {
+    Router::get('/', 'App\Controller\WebSocket\WebSocketController');
+});
