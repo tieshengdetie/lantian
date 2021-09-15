@@ -14,7 +14,12 @@ return [
         'http' => [
             Hyperf\HttpServer\Exception\Handler\HttpExceptionHandler::class,
             App\Exception\Handler\AppExceptionHandler::class,
-            Hyperf\Validation\ValidationExceptionHandler::class,
+            App\Exception\Handler\JwtAuthExceptionHandler::class,
+            App\Exception\Handler\ValidateExceptionHandler::class,
+//            Hyperf\Validation\ValidationExceptionHandler::class,
+        ],
+        'ws' => [
+            App\Exception\Handler\WebSocketExceptionHandler::class
         ],
     ],
 ];

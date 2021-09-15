@@ -19,7 +19,7 @@ class BusinessCode extends  AbstractConstants{
      */
     const SUCCESS_REQUEST = 100000;
     /**
-     * @Message("请求成功！")
+     * @Message("登录出错！")
      */
     const LOGIN_ERROR = 100001;
     /**

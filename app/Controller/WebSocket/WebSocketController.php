@@ -20,11 +20,12 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
 
     public function onClose($server, int $fd, int $reactorId): void
     {
-        var_dump('closed');
+        stdLog()->notice("连接已断开！ 时间：". date('Y-m-d H:i:s'));
     }
 
     public function onOpen($server, Request $request): void
     {
-        $server->push($request->fd, 'Opened');
+        stdLog()->notice("用户连接信息 : fd:{$request->fd} 时间：". date('Y-m-d H:i:s'));
+        $server->push($request->fd, '已连接');
     }
 }

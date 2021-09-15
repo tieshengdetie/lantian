@@ -14,7 +14,7 @@ use Hyperf\Watcher\Driver\FswatchDriver;
 use Hyperf\Watcher\Driver\FindDriver;
 
 return [
-    'driver' => FindDriver::class,
+    'driver' => FswatchDriver::class,
     'bin' => 'php',
     'watch' => [
         'dir' => ['app', 'config','vendor'],
