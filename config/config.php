@@ -28,4 +28,5 @@ return [
             LogLevel::WARNING,
         ],
     ],
+    'lantian_secret' => env('LANTIAN_SECRET','lantianfangzhou')
 ];

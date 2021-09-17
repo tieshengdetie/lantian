@@ -9,14 +9,15 @@
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\AsyncQueue\JobInterface;
 use Hyperf\Contract\StdoutLoggerInterface;
-use Hyperf\Logger\LoggerFactory;
 use Hyperf\ExceptionHandler\Formatter\FormatterInterface;
+use Hyperf\Logger\LoggerFactory;
 use Hyperf\Utils\ApplicationContext;
 use HyperfExt\Auth\Contracts\AuthManagerInterface;
 use HyperfExt\Auth\Contracts\GuardInterface;
 use HyperfExt\Auth\Contracts\StatefulGuardInterface;
 use HyperfExt\Auth\Contracts\StatelessGuardInterface;
 use Psr\Container\ContainerInterface;
+use Swoole\WebSocket\Server as WebSocketServer;
 
 /**
  * 获取Container
@@ -71,6 +72,17 @@ if (!function_exists('logger')) {
     }
 }
 
+if (!function_exists('websocket')) {
+    /**
+     *  websocketServer实例
+     *
+     * @return mixed|WebSocketServer
+     */
+    function websocket()
+    {
+        return container()->get(WebSocketServer::class);
+    }
+}
 /**
  * redis 客户端实例
  */
@@ -246,4 +258,18 @@ if (!function_exists('page')) {
         $startCount = ($currPage - 1) * $pageSize;
         return array($totalPage, $startCount);
     }
+
+
+}
+
+if (!function_exists('isJson')) {
+    /**
+     * 判断是否为json字符串
+     */
+    function isJson($json)
+    {
+        return !preg_match('/[^,:{}\\[\\]0-9.\\-+Eaeflnr-u \\n\\r\\t]/', preg_replace('/"(\\.|[^"\\\\])*"/', '', $json));
+    }
+
+
 }

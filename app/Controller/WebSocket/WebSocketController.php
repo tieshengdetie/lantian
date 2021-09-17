@@ -10,12 +10,32 @@ use Swoole\Http\Request;
 use Swoole\Server;
 use Swoole\Websocket\Frame;
 use Swoole\WebSocket\Server as WebSocketServer;
+use App\Service\MessageHandleService;
+use Hyperf\Di\Annotation\Inject;
 
 class WebSocketController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
 {
+
+    /**
+     * @inject
+     * @var MessageHandleService
+     */
+    private $messageHandleService;
+
     public function onMessage($server, Frame $frame): void
     {
-        $server->push($frame->fd, 'Recv: ' . $frame->data);
+
+        $data = $frame->data;
+//        $server->push($frame->fd, 'Recv: 22');
+        //判断接受的数据是否为标准json
+        $isJson = isJson($data);
+        if($isJson){
+            var_dump($data);
+        }else{
+            //分发数据
+            call_user_func_array([$this->messageHandleService,'dispatch'],[$server,$frame,$data]);
+        }
+
     }
 
     public function onClose($server, int $fd, int $reactorId): void
