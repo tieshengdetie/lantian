@@ -14,19 +14,20 @@ class BaseService
     {
         $strData = str_replace(']', '', str_replace('[', '', $data));
         $arrData = explode(',', $strData);
-        $md5 = substr($arrData[0], 0, 31);
+        $md5 = substr($arrData[0], 0, 32);
         $clientInfo = substr($arrData[0], 32);
         //去除第一个元素，剩下的是数据
         array_shift($arrData);
         $arrClientInfo = explode('*', $clientInfo);
+
         return [
             'md5' => $md5,
-            'company_code' => $arrClientInfo[0],
-            'device_imei' => $arrClientInfo[1],
-            'content_length' => $arrClientInfo[2],
-            'data_type' => $arrClientInfo[3],
+            'company_code' => isset($arrClientInfo[0]) ? $arrClientInfo[0]: "",
+            'device_imei' => isset($arrClientInfo[1]) ? $arrClientInfo[1] : "",
+            'content_length' => isset($arrClientInfo[2]) ? $arrClientInfo[2] : "",
+            'data_type' => isset($arrClientInfo[3]) ? $arrClientInfo[3] : "",
             'str_info' => $clientInfo,
-            'data' =>$arrData
+            'data' =>json_encode($arrData)
         ];
 
     }

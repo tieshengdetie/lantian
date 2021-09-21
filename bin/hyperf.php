@@ -13,6 +13,9 @@ date_default_timezone_set('PRC');
 
 require BASE_PATH . '/vendor/autoload.php';
 
+// 设置服务运行ID
+define('SERVER_RUN_ID', uniqid());
+
 // Self-called anonymous function that creates its own scope and keep the global namespace clean.
 (function () {
     Hyperf\Di\ClassLoader::init();
