@@ -3,7 +3,6 @@
 namespace App\Cache;
 
 use App\Cache\Repository\HashGroupRedis;
-use function _PHPStan_68495e8a9\RingCentral\Psr7\str;
 
 /**
  * 注:客户端ID与用户ID绑定(多对一关系)

@@ -29,7 +29,7 @@ class WebSocketExceptionHandler extends ExceptionHandler
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        stdLog(444);
+
         $stream = new SwooleStream($throwable->getMessage());
         return $response->withBody($stream);
     }
