@@ -29,7 +29,6 @@ class ServerRunID extends HashRedis
     public function getServerRunIdAll(int $type = 1): array
     {
         $arr = $this->all();
-
         if ($type == 3) return $arr;
 
         $current_time = time();
@@ -40,5 +39,17 @@ class ServerRunID extends HashRedis
                 return ($current_time - intval($value)) > self::RUN_OVERTIME;
             }
         });
+    }
+
+    /**
+     * 获取服务ID列表
+     *
+     * @param int $type 获取类型[1:正在运行;2:已超时;3:所有]
+     * @return array
+     */
+    public function getShutDwonServerRunId(): array
+    {
+        $arr = $this->all();
+        return $arr;
     }
 }

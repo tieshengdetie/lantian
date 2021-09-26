@@ -16,9 +16,9 @@ class SocketFdBindImei extends HashGroupRedis
     /**
      * 添加绑定
      *
-     * @param int    $fd      回话ID
+     * @param int       $fd      回话ID
      * @param string    $imei    设备码ID
-     * @param string $run_id  服务运行ID（默认当前服务ID）
+     * @param string    $run_id  服务运行ID（默认当前服务ID）
      * @return bool|int
      */
     public function bind(int $fd, string $imei, $run_id = SERVER_RUN_ID)
