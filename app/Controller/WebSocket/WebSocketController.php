@@ -26,7 +26,6 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
     {
 
         $data = $frame->data;
-//        $server->push($frame->fd, 'Recv: 22');
         //判断接受的数据是否为标准json
         $isJson = isJson($data);
         if($isJson){
@@ -41,6 +40,9 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
     public function onClose($server, int $fd, int $reactorId): void
     {
         stdLog()->notice("连接已断开！ 时间：". date('Y-m-d H:i:s'));
+
+        $this->messageHandleService->removeBind($fd);
+
     }
 
     public function onOpen($server, Request $request): void

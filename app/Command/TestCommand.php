@@ -52,6 +52,25 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
+        $arr = [];
+        for($i=0;$i<=23;$i++){
+
+            $min = $i;
+            if($i<=9) $min = "0".$min;
+            for($j=0;$j<=59;$j=$j+5){
+                $sec = $j;
+                if($sec <=9) $sec = "0".$sec;
+                $arr[] = $min.":".$sec;
+            }
+        }
+        for($i=0;$i<=23;$i++){
+
+            for($j=0;$j<=59;$j=$j+5){
+                $num = rand(90,100);
+                $arr[] = $num;
+            }
+        }
+        var_dump(json_encode($arr));
         //$lock = LockRedis::getInstance();
         //var_dump($lock->delete('ttt'));
         //var_dump($lock->lock('ttt', 180, 5));

@@ -33,6 +33,7 @@ class MessageHandleService extends BaseService {
             //判断设备是否已经绑定
             $socketImeiBindFds = SocketImeiBindFds::getInstance();
             $isOnline = $socketImeiBindFds ->isOnline($formatData['device_imei']);
+
             if($isOnline === false){
                 $socketFdBindImei = SocketFdBindImei::getInstance();
                 //绑定会话fd和设备imei的关系
@@ -58,5 +59,15 @@ class MessageHandleService extends BaseService {
 
 
 
+    }
+
+    public function removeBind(int $fd, $run_id = SERVER_RUN_ID){
+
+        $socketImeiBindFds = SocketImeiBindFds::getInstance();
+        $socketFdBindImei = SocketFdBindImei::getInstance();
+        $imei = $socketFdBindImei->findDeviceImei($fd);
+        //解除绑定关系
+        $socketFdBindImei->unBind($fd,$run_id);
+        $socketImeiBindFds->unBind($fd,$imei,$run_id);
     }
 }
